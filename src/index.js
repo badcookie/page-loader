@@ -14,8 +14,5 @@ export default (address, dirpath) => {
   const filename = getFilename(address);
   const filepath = path.join(dirpath, filename);
   return axios.get(address)
-    .then(response => fs.writeFile(filepath, response.data))
-    .catch((e) => {
-      throw e;
-    });
+    .then(response => fs.writeFile(filepath, response.data));
 };
