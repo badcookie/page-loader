@@ -14,6 +14,7 @@ before_script:
 
 script:
   - make lint
+  - make test
   - make coverage
 
 after_script:
