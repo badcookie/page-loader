@@ -11,7 +11,7 @@ axios.defaults.adapter = httpAdapter;
 const filename = 'hexlet-io-courses.html';
 const expectedContentFilepath = path.join(__dirname, '__fixtures__', filename);
 
-test('wtf', async () => {
+test('should download resource to appropriate directory', async () => {
   const expectedBody = await fs.readFile(expectedContentFilepath, 'utf-8');
 
   nock('https://hexlet.io/')
