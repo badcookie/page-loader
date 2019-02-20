@@ -12,7 +12,7 @@ $ npm install -g sugoi-page-loader
 
 ## Usage
 ```sh
-$ sugoi-page-loader --output directory url
+$ page-loader --output directory url
 ```
 
 ## Action
