@@ -8,18 +8,46 @@ import pageLoader from '../src';
 
 axios.defaults.adapter = httpAdapter;
 
-const filename = 'hexlet-io-courses.html';
-const expectedContentFilepath = path.join(__dirname, '__fixtures__', filename);
+const getFixtureFilepath = (filename) => {
+  const fixturesPath = path.join(__dirname, '__fixtures__');
+  return path.join(fixturesPath, filename);
+};
 
-test('should download resource to appropriate directory', async () => {
-  const expectedBody = await fs.readFile(expectedContentFilepath, 'utf-8');
+const baseUrl = 'https://hexlet.io/';
 
-  nock('https://hexlet.io/')
+const mainFileName = 'hexlet-io-courses.html';
+const resourceDirectoryName = 'hexlet-io-courses_files';
+const resourceLink1 = '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js';
+const resourceLink2 = '/courses';
+
+
+test('should download resources to appropriate directories', async () => {
+  expect.assertions(2);
+
+  const originalMainFile = await fs.readFile(getFixtureFilepath(mainFileName), 'utf-8');
+  const expectedMainFile = await fs.readFile(getFixtureFilepath('modified-hexlet-io-courses.html'), 'utf-8');
+
+  const resourceData1 = await fs.readFile(getFixtureFilepath('resource1.txt'), 'utf-8');
+  const resourceData2 = await fs.readFile(getFixtureFilepath('resource2.txt'), 'utf-8');
+
+  nock(baseUrl)
     .get('/courses')
-    .reply(200, expectedBody);
+    .reply(200, originalMainFile);
+
+  nock(baseUrl)
+    .get(resourceLink1)
+    .reply(200, resourceData1);
+
+  nock(baseUrl)
+    .get(resourceLink2)
+    .reply(200, resourceData2);
 
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
+  const resourceDirectoryPath = path.join(temporaryDirectory, resourceDirectoryName);
+
   await pageLoader('https://hexlet.io/courses', temporaryDirectory);
-  const actualBody = await fs.readFile(path.join(temporaryDirectory, filename), 'utf-8');
-  expect(actualBody).toEqual(expectedBody);
+  const actualMainFile = await fs.readFile(path.join(temporaryDirectory, mainFileName), 'utf-8');
+
+  expect(actualMainFile).toEqual(expectedMainFile);
+  expect(() => fs.access(resourceDirectoryPath)).not.toThrowError();
 });
