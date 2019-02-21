@@ -16,7 +16,7 @@ $ page-loader --output [directory] <url>
 ```
 
 ## Action
-[![asciicast](https://asciinema.org/a/iTOp0QAwbibg34XaQrcLLUNub.svg)](https://asciinema.org/a/iTOp0QAwbibg34XaQrcLLUNub)
-[![asciicast](https://asciinema.org/a/cn7HyG8DFOFdE3BaWFm1bmQi5.svg)](https://asciinema.org/a/cn7HyG8DFOFdE3BaWFm1bmQi5)
+[![asciicast](https://asciinema.org/a/mGMRdf3rdRvQSyL6upWWYskiM.svg)](https://asciinema.org/a/mGMRdf3rdRvQSyL6upWWYskiM)
+[![asciicast](https://asciinema.org/a/4hoLaLlJMxjPcuvX2GYDVZLyw.svg)](https://asciinema.org/a/4hoLaLlJMxjPcuvX2GYDVZLyw)
 
 
