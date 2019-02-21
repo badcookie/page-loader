@@ -55,12 +55,11 @@ const getTagProperties = usersTag => tagsProperties.find(({ tag }) => tag === us
 export default (address, dirpath) => {
   const resourceDirectoryName = getContentName(address, 'directory');
   const links = [];
-  let modifiedHtml = '';
+  let modifiedMainFile = '';
 
   return axios.get(address)
     .then((response) => {
-      const html = response.data;
-      const $ = cheerio.load(html, { decodeEntities: false });
+      const $ = cheerio.load(response.data, { decodeEntities: false });
 
       tagsProperties.forEach(({ tag, attribute }) => {
         $(tag).each((i, element) => {
@@ -74,7 +73,7 @@ export default (address, dirpath) => {
         });
       });
 
-      modifiedHtml = $.html();
+      modifiedMainFile = $.html();
       return fs.mkdir(path.join(dirpath, resourceDirectoryName));
     })
     .then(() => {
@@ -96,6 +95,6 @@ export default (address, dirpath) => {
     .then(() => {
       const mainFileName = getContentName(address, 'main');
       const mainFilePath = path.join(dirpath, mainFileName);
-      return fs.writeFile(mainFilePath, modifiedHtml);
+      return fs.writeFile(mainFilePath, modifiedMainFile);
     });
 };
