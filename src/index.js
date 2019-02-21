@@ -18,8 +18,8 @@ const contentTypes = {
     return [`${host}${pathname}`, '.html'];
   },
   directory: (address) => {
-    const { host, pathname } = url.parse(address);
-    return [`${host}${pathname}`, '_files'];
+    const [pathString] = contentTypes.main(address);
+    return [pathString, '_files'];
   },
   resource: (address) => {
     const { dir, name, ext } = path.parse(address);

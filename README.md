@@ -5,7 +5,7 @@ A loader of page content.
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8990650d7b9bedd07973/test_coverage)](https://codeclimate.com/github/badcookie/page-loader/test_coverage)
 [![Build Status](https://travis-ci.org/badcookie/page-loader.svg?branch=master)](https://travis-ci.org/badcookie/page-loader)
 
-## Install
+## Installation
 ```sh
 $ npm install -g sugoi-page-loader
 ```
