@@ -25,3 +25,6 @@ $ page-loader --output [directory] <url>
 ### Debugging
 [![asciicast](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH.svg)](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH)
 
+### Error handling
+[![asciicast](https://asciinema.org/a/NRmh2yW4c6XxnYZjVUR9DKBH4.svg)](https://asciinema.org/a/NRmh2yW4c6XxnYZjVUR9DKBH4)
+

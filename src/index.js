@@ -4,11 +4,29 @@ import url from 'url';
 import path from 'path';
 import cheerio from 'cheerio';
 import debug from 'debug';
-import { words, keys } from 'lodash';
+import { words, keys, has } from 'lodash';
 
 const logExtract = debug('page-loader: extract ');
 const logRequest = debug('page-loader: request ');
 const logWrite = debug('page-loader: download ');
+
+const handleError = (error) => {
+  const errorTypes = [
+    {
+      type: 'File system',
+      check: err => has(err, 'path'),
+      data: err => err.path,
+    },
+    {
+      type: 'Network',
+      check: () => true,
+      data: err => err.config.url,
+    },
+  ];
+
+  const { type, data } = errorTypes.find(({ check }) => check(error));
+  console.error(`${type} error: trouble occured with ${data(error)} --> ${error.message}.`);
+};
 
 const exists = link => link !== undefined;
 
@@ -43,6 +61,7 @@ const tagsProperties = {
   link: { attribute: 'href', responseType: 'text' },
 };
 
+
 export default (address, dirpath) => {
   const resourceDirectoryName = getContentName(address, 'directory');
   const links = [];
@@ -75,9 +94,10 @@ export default (address, dirpath) => {
       const loadingResourcesPromises = links.map(({ link, tag }) => {
         const resourceName = getContentName(link, 'resource');
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
-        logRequest(link);
         const { host } = url.parse(address);
         const { responseType } = tagsProperties[tag];
+
+        logRequest(link);
         return axios({
           method: 'get',
           responseType,
@@ -85,7 +105,7 @@ export default (address, dirpath) => {
         }).then((resourceResponse) => {
           logWrite(`resource ${link} to ${resourcePath}`);
           return fs.writeFile(resourcePath, resourceResponse.data);
-        });
+        }).catch(handleError);
       });
 
       return Promise.all(loadingResourcesPromises);
@@ -95,5 +115,9 @@ export default (address, dirpath) => {
       const mainFilePath = path.join(dirpath, mainFileName);
       logWrite(`resource ${address} to ${mainFilePath}`);
       return fs.writeFile(mainFilePath, modifiedMainFile);
+    })
+    .catch((error) => {
+      handleError(error);
+      process.exit(error.code);
     });
 };
