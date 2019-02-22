@@ -3,7 +3,7 @@ import axios from 'axios';
 import url from 'url';
 import path from 'path';
 import cheerio from 'cheerio';
-import { words } from 'lodash';
+import { words, keys } from 'lodash';
 
 const exists = link => link !== undefined;
 
@@ -32,25 +32,11 @@ const getContentName = (address, type) => {
   return words(pathString, /[^./]+/g).join('-').concat(postfix);
 };
 
-const tagsProperties = [
-  {
-    tag: 'script',
-    attribute: 'src',
-    responseType: 'text',
-  },
-  {
-    tag: 'img',
-    attribute: 'src',
-    responseType: 'stream',
-  },
-  {
-    tag: 'link',
-    attribute: 'href',
-    responseType: 'text',
-  },
-];
-
-const getTagProperties = usersTag => tagsProperties.find(({ tag }) => tag === usersTag);
+const tagsProperties = {
+  script: { attribute: 'src', responseType: 'text' },
+  img: { attribute: 'src', responseType: 'stream' },
+  link: { attribute: 'href', responseType: 'text' },
+};
 
 export default (address, dirpath) => {
   const resourceDirectoryName = getContentName(address, 'directory');
@@ -61,7 +47,9 @@ export default (address, dirpath) => {
     .then((response) => {
       const $ = cheerio.load(response.data, { decodeEntities: false });
 
-      tagsProperties.forEach(({ tag, attribute }) => {
+      const tags = keys(tagsProperties);
+      tags.forEach((tag) => {
+        const { attribute } = tagsProperties[tag];
         $(tag).each((i, element) => {
           const link = $(element).attr(attribute);
           if (exists(link) && isLocal(link)) {
@@ -82,7 +70,7 @@ export default (address, dirpath) => {
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
 
         const { host } = url.parse(address);
-        const { responseType } = getTagProperties(tag);
+        const { responseType } = tagsProperties[tag];
         return axios({
           method: 'get',
           responseType,
