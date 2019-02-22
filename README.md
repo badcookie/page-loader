@@ -16,7 +16,12 @@ $ page-loader --output [directory] <url>
 ```
 
 ## Action
-[![asciicast](https://asciinema.org/a/mGMRdf3rdRvQSyL6upWWYskiM.svg)](https://asciinema.org/a/mGMRdf3rdRvQSyL6upWWYskiM)
+### Installation
+[![asciicast](https://asciinema.org/a/FCRtpXakRZaClIg2tu3u6eh5I.svg)](https://asciinema.org/a/FCRtpXakRZaClIg2tu3u6eh5I)
+
+### Usage
 [![asciicast](https://asciinema.org/a/4hoLaLlJMxjPcuvX2GYDVZLyw.svg)](https://asciinema.org/a/4hoLaLlJMxjPcuvX2GYDVZLyw)
 
+### Debugging
+[![asciicast](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH.svg)](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH)
 
