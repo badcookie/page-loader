@@ -5,6 +5,7 @@ run:
 	npx babel-node -- src/bin/page-loader.js
 
 publish:
+	rm -rf dist
 	npm publish
 
 lint:

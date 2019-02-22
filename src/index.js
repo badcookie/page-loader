@@ -3,7 +3,12 @@ import axios from 'axios';
 import url from 'url';
 import path from 'path';
 import cheerio from 'cheerio';
+import debug from 'debug';
 import { words, keys } from 'lodash';
+
+const logExtract = debug('page-loader: extract ');
+const logRequest = debug('page-loader: request ');
+const logWrite = debug('page-loader: download ');
 
 const exists = link => link !== undefined;
 
@@ -43,6 +48,7 @@ export default (address, dirpath) => {
   const links = [];
   let modifiedMainFile = '';
 
+  logRequest(address);
   return axios.get(address)
     .then((response) => {
       const $ = cheerio.load(response.data, { decodeEntities: false });
@@ -53,6 +59,7 @@ export default (address, dirpath) => {
         $(tag).each((i, element) => {
           const link = $(element).attr(attribute);
           if (exists(link) && isLocal(link)) {
+            logExtract(link);
             links.push({ link, tag });
             const resourceName = getContentName(link, 'resource');
             const resourcePath = path.join(resourceDirectoryName, resourceName);
@@ -68,14 +75,17 @@ export default (address, dirpath) => {
       const loadingResourcesPromises = links.map(({ link, tag }) => {
         const resourceName = getContentName(link, 'resource');
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
-
+        logRequest(link);
         const { host } = url.parse(address);
         const { responseType } = tagsProperties[tag];
         return axios({
           method: 'get',
           responseType,
           url: `https://${host}${link}`,
-        }).then(resourceResponse => fs.writeFile(resourcePath, resourceResponse.data));
+        }).then((resourceResponse) => {
+          logWrite(`resource ${link} to ${resourcePath}`);
+          return fs.writeFile(resourcePath, resourceResponse.data);
+        });
       });
 
       return Promise.all(loadingResourcesPromises);
@@ -83,6 +93,7 @@ export default (address, dirpath) => {
     .then(() => {
       const mainFileName = getContentName(address, 'main');
       const mainFilePath = path.join(dirpath, mainFileName);
+      logWrite(`resource ${address} to ${mainFilePath}`);
       return fs.writeFile(mainFilePath, modifiedMainFile);
     });
 };
