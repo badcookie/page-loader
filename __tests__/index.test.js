@@ -21,18 +21,19 @@ const resourceLink1 = '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.
 const resourceLink2 = '/courses';
 
 
-test('should download resources to appropriate directories', async () => {
-  expect.assertions(2);
-
+beforeEach(async () => {
   const originalMainFile = await fs.readFile(getFixtureFilepath(mainFileName), 'utf-8');
-  const expectedMainFile = await fs.readFile(getFixtureFilepath('modified-hexlet-io-courses.html'), 'utf-8');
-
-  const resourceData1 = await fs.readFile(getFixtureFilepath('resource1.txt'), 'utf-8');
-  const resourceData2 = await fs.readFile(getFixtureFilepath('resource2.txt'), 'utf-8');
 
   nock(baseUrl)
     .get('/courses')
     .reply(200, originalMainFile);
+});
+
+test('should download resources to appropriate directories', async () => {
+  expect.assertions(2);
+
+  const resourceData1 = await fs.readFile(getFixtureFilepath('resource1.txt'), 'utf-8');
+  const resourceData2 = await fs.readFile(getFixtureFilepath('resource2.txt'), 'utf-8');
 
   nock(baseUrl)
     .get(resourceLink1)
@@ -42,6 +43,8 @@ test('should download resources to appropriate directories', async () => {
     .get(resourceLink2)
     .reply(200, resourceData2);
 
+  const expectedMainFile = await fs.readFile(getFixtureFilepath('modified-hexlet-io-courses.html'), 'utf-8');
+
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
   const resourceDirectoryPath = path.join(temporaryDirectory, resourceDirectoryName);
 
@@ -50,4 +53,18 @@ test('should download resources to appropriate directories', async () => {
 
   expect(actualMainFile).toEqual(expectedMainFile);
   expect(() => fs.access(resourceDirectoryPath)).not.toThrowError();
+});
+
+test('should consider error cases', async () => {
+  expect.assertions(2);
+
+  const fakeUrl = 'https://hexlet.oi/courses';
+  const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
+  const fakeUrlHandler = () => pageLoader(fakeUrl, temporaryDirectory);
+
+  const fakeDirectory = path.join(__dirname, 'fake');
+  const fakeDirectoryHandler = () => pageLoader('https://hexlet.io/courses', fakeDirectory);
+
+  expect(fakeDirectoryHandler()).toThrowErrorMatchingSnapshot();
+  expect(fakeUrlHandler()).toThrowErrorMatchingSnapshot();
 });
