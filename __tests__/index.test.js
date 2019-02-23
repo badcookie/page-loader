@@ -56,7 +56,7 @@ test('should download resources to appropriate directories', async () => {
 });
 
 test('should consider error cases', async () => {
-  expect.assertions(2);
+  expect.assertions(3);
 
   const fakeUrl = 'https://hexlet.oi/courses';
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
@@ -65,6 +65,13 @@ test('should consider error cases', async () => {
   const fakeDirectory = path.join(__dirname, 'fake');
   const fakeDirectoryHandler = () => pageLoader('https://hexlet.io/courses', fakeDirectory);
 
+  const mainFileWithIncorrectResources = await fs.readFile(getFixtureFilepath('broken-html.html'), 'utf-8');
+  nock(baseUrl)
+    .get('/courses')
+    .reply(200, mainFileWithIncorrectResources);
+  const fakeResourcesHandler = () => pageLoader('https://hexlet.io/courses', temporaryDirectory);
+
   expect(fakeDirectoryHandler()).toThrowErrorMatchingSnapshot();
   expect(fakeUrlHandler()).toThrowErrorMatchingSnapshot();
+  expect(fakeResourcesHandler()).toThrowErrorMatchingSnapshot();
 });

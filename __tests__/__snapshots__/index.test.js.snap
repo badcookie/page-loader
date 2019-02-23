@@ -3,3 +3,5 @@
 exports[`should consider error cases 1`] = `"received is not a function"`;
 
 exports[`should consider error cases 2`] = `"received is not a function"`;
+
+exports[`should consider error cases 3`] = `"received is not a function"`;
