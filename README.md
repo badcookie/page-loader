@@ -26,5 +26,9 @@ $ page-loader --output [directory] <url>
 [![asciicast](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH.svg)](https://asciinema.org/a/sDXoCQVBys9OtKI05q4w4WkaH)
 
 ### Error handling
+User messages
 [![asciicast](https://asciinema.org/a/NRmh2yW4c6XxnYZjVUR9DKBH4.svg)](https://asciinema.org/a/NRmh2yW4c6XxnYZjVUR9DKBH4)
+
+Download continues despite particular resources' errors
+[![asciicast](https://asciinema.org/a/K6fJxCkoPMgbiri5MTwPHbLi5.svg)](https://asciinema.org/a/K6fJxCkoPMgbiri5MTwPHbLi5)
 
