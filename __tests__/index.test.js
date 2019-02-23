@@ -17,8 +17,6 @@ const baseUrl = 'https://hexlet.io/';
 
 const mainFileName = 'hexlet-io-courses.html';
 const resourceDirectoryName = 'hexlet-io-courses_files';
-const resourceLink1 = '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js';
-const resourceLink2 = '/courses';
 
 
 beforeEach(async () => {
@@ -32,7 +30,10 @@ beforeEach(async () => {
 test('should download resources to appropriate directories', async () => {
   expect.assertions(2);
 
+  const resourceLink1 = '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js';
   const resourceData1 = await fs.readFile(getFixtureFilepath('resource1.txt'), 'utf-8');
+
+  const resourceLink2 = '/courses';
   const resourceData2 = await fs.readFile(getFixtureFilepath('resource2.txt'), 'utf-8');
 
   nock(baseUrl)
