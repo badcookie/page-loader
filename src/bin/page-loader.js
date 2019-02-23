@@ -12,6 +12,9 @@ program
 
 program
   .arguments('<url>')
-  .action(url => pageLoader(url, program.output));
+  .action((url) => {
+    console.log('');
+    return pageLoader(url, program.output);
+  });
 
 program.parse(process.argv);

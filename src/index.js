@@ -5,6 +5,7 @@ import path from 'path';
 import cheerio from 'cheerio';
 import debug from 'debug';
 import isImage from 'is-image';
+import Listr from 'listr';
 import { words, keys, has } from 'lodash';
 
 const logExtract = debug('page-loader: extract ');
@@ -65,6 +66,9 @@ const tagsProperties = {
 
 export default (address, dirpath) => {
   const resourceDirectoryName = getContentName(address, 'directory');
+  const mainFileName = getContentName(address, 'main');
+  const mainFilePath = path.join(dirpath, mainFileName);
+
   const links = [];
   let modifiedMainFile = '';
 
@@ -97,25 +101,31 @@ export default (address, dirpath) => {
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
         const { responseType } = tagsProperties[tag];
 
+        const resourceTask = new Listr([
+          {
+            title: url.resolve(address, link),
+            task: () => axios({
+              method: 'get',
+              responseType: responseType(link),
+              url: url.resolve(address, link),
+            }).then((resourceResponse) => {
+              logWrite(`resource ${link} to ${resourcePath}`);
+              return fs.writeFile(resourcePath, resourceResponse.data);
+            }).catch(handleError),
+          },
+        ], { exitOnError: false });
+
         logRequest(link);
-        return axios({
-          method: 'get',
-          responseType: responseType(link),
-          url: url.resolve(address, link),
-        }).then((resourceResponse) => {
-          logWrite(`resource ${link} to ${resourcePath}`);
-          return fs.writeFile(resourcePath, resourceResponse.data);
-        }).catch(handleError);
+        return resourceTask.run();
       });
 
       return Promise.all(loadingResourcesPromises);
     })
     .then(() => {
-      const mainFileName = getContentName(address, 'main');
-      const mainFilePath = path.join(dirpath, mainFileName);
       logWrite(`resource ${address} to ${mainFilePath}`);
       return fs.writeFile(mainFilePath, modifiedMainFile);
     })
+    .then(() => console.log(`\nPage was downloaded as '${mainFileName}'\n`))
     .catch((error) => {
       handleError(error);
       throw error;
