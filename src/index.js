@@ -27,7 +27,7 @@ const handleError = (error) => {
   ];
 
   const { type, data } = errorTypes.find(({ check }) => check(error));
-  console.error(`${type} error: trouble occured with ${data(error)} --> ${error.message}.`);
+  return `${type} error: trouble occured with ${data(error)} --> ${error.message}.`;
 };
 
 const exists = link => link !== undefined;
@@ -125,9 +125,9 @@ export default (address, dirpath) => {
       logWrite(`resource ${address} to ${mainFilePath}`);
       return fs.writeFile(mainFilePath, modifiedMainFile);
     })
-    .then(() => console.log(`\nPage was downloaded as '${mainFileName}'\n`))
+    .then(() => mainFileName)
     .catch((error) => {
-      handleError(error);
-      throw error;
+      const message = handleError(error);
+      throw new Error(message);
     });
 };

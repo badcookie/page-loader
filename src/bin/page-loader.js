@@ -14,7 +14,10 @@ program
   .arguments('<url>')
   .action((url) => {
     console.log('');
-    return downloadPage(url, program.output);
+    downloadPage(url, program.output)
+      .then(mainFileName => console.log(`\nPage was downloaded as '${mainFileName}'`))
+      .catch(error => console.error(error.message))
+      .then(() => console.log(''));
   });
 
 program.parse(process.argv);
