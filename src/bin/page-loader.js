@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import program from 'commander';
-import pageLoader from '..';
+import downloadPage from '..';
 import { version } from '../../package.json';
 
 program
@@ -14,7 +14,7 @@ program
   .arguments('<url>')
   .action((url) => {
     console.log('');
-    return pageLoader(url, program.output);
+    return downloadPage(url, program.output);
   });
 
 program.parse(process.argv);

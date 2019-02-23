@@ -4,7 +4,7 @@ import os from 'os';
 import axios from 'axios';
 import httpAdapter from 'axios/lib/adapters/http';
 import nock from 'nock';
-import pageLoader from '../src';
+import downloadPage from '../src';
 
 axios.defaults.adapter = httpAdapter;
 
@@ -49,7 +49,7 @@ test('should download resources to appropriate directories', async () => {
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
   const resourceDirectoryPath = path.join(temporaryDirectory, resourceDirectoryName);
 
-  await pageLoader('https://hexlet.io/courses', temporaryDirectory);
+  await downloadPage('https://hexlet.io/courses', temporaryDirectory);
   const actualMainFile = await fs.readFile(path.join(temporaryDirectory, mainFileName), 'utf-8');
 
   expect(actualMainFile).toEqual(expectedMainFile);
@@ -61,16 +61,16 @@ test('should consider error cases', async () => {
 
   const fakeUrl = 'https://hexlet.oi/courses';
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), '/'));
-  const fakeUrlHandler = () => pageLoader(fakeUrl, temporaryDirectory);
+  const fakeUrlHandler = () => downloadPage(fakeUrl, temporaryDirectory);
 
   const fakeDirectory = path.join(__dirname, 'fake');
-  const fakeDirectoryHandler = () => pageLoader('https://hexlet.io/courses', fakeDirectory);
+  const fakeDirectoryHandler = () => downloadPage('https://hexlet.io/courses', fakeDirectory);
 
   const mainFileWithIncorrectResources = await fs.readFile(getFixtureFilepath('broken-html.html'), 'utf-8');
   nock(baseUrl)
     .get('/courses')
     .reply(200, mainFileWithIncorrectResources);
-  const fakeResourcesHandler = () => pageLoader('https://hexlet.io/courses', temporaryDirectory);
+  const fakeResourcesHandler = () => downloadPage('https://hexlet.io/courses', temporaryDirectory);
 
   expect(fakeDirectoryHandler()).toThrowErrorMatchingSnapshot();
   expect(fakeUrlHandler()).toThrowErrorMatchingSnapshot();
