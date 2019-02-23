@@ -16,8 +16,10 @@ program
     console.log('');
     downloadPage(url, program.output)
       .then(mainFileName => console.log(`\nPage was downloaded as '${mainFileName}'`))
-      .catch(error => console.error(error.message))
-      .then(() => console.log(''));
+      .catch((error) => {
+        console.error(error.message);
+        process.exit(1);
+      });
   });
 
 program.parse(process.argv);

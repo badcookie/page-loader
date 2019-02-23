@@ -27,7 +27,7 @@ const handleError = (error) => {
   ];
 
   const { type, data } = errorTypes.find(({ check }) => check(error));
-  return `${type} error: trouble occured with ${data(error)} --> ${error.message}.`;
+  return `${type} error: trouble occured with ${data(error)} --> ${error.message}`;
 };
 
 const exists = link => link !== undefined;

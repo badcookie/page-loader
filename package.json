@@ -1,6 +1,6 @@
 {
   "name": "sugoi-page-loader",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A loader of page content",
   "bin": {
     "page-loader": "dist/bin/page-loader.js"
