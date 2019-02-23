@@ -4,6 +4,7 @@ import url from 'url';
 import path from 'path';
 import cheerio from 'cheerio';
 import debug from 'debug';
+import isImage from 'is-image';
 import { words, keys, has } from 'lodash';
 
 const logExtract = debug('page-loader: extract ');
@@ -56,9 +57,9 @@ const getContentName = (address, type) => {
 };
 
 const tagsProperties = {
-  script: { attribute: 'src', responseType: 'text' },
-  img: { attribute: 'src', responseType: 'arraybuffer' },
-  link: { attribute: 'href', responseType: 'text' },
+  script: { attribute: 'src', responseType: () => 'text' },
+  img: { attribute: 'src', responseType: () => 'arraybuffer' },
+  link: { attribute: 'href', responseType: filepath => (isImage(filepath) ? 'arraybuffer' : 'text') },
 };
 
 
@@ -99,7 +100,7 @@ export default (address, dirpath) => {
         logRequest(link);
         return axios({
           method: 'get',
-          responseType,
+          responseType: responseType(link),
           url: url.resolve(address, link),
         }).then((resourceResponse) => {
           logWrite(`resource ${link} to ${resourcePath}`);
