@@ -118,6 +118,6 @@ export default (address, dirpath) => {
     })
     .catch((error) => {
       handleError(error);
-      process.exit(error.code);
+      throw error;
     });
 };
