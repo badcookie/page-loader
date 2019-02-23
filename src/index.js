@@ -57,7 +57,7 @@ const getContentName = (address, type) => {
 
 const tagsProperties = {
   script: { attribute: 'src', responseType: 'text' },
-  img: { attribute: 'src', responseType: 'stream' },
+  img: { attribute: 'src', responseType: 'arraybuffer' },
   link: { attribute: 'href', responseType: 'text' },
 };
 
@@ -94,14 +94,13 @@ export default (address, dirpath) => {
       const loadingResourcesPromises = links.map(({ link, tag }) => {
         const resourceName = getContentName(link, 'resource');
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
-        const { host } = url.parse(address);
         const { responseType } = tagsProperties[tag];
 
         logRequest(link);
         return axios({
           method: 'get',
           responseType,
-          url: `https://${host}${link}`,
+          url: url.resolve(address, link),
         }).then((resourceResponse) => {
           logWrite(`resource ${link} to ${resourcePath}`);
           return fs.writeFile(resourcePath, resourceResponse.data);
