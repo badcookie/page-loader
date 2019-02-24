@@ -72,8 +72,11 @@ export default (address, dirpath) => {
   const links = [];
   let modifiedMainFile = '';
 
-  logRequest(address);
-  return axios.get(address)
+  return fs.access(dirpath)
+    .then(() => {
+      logRequest(address);
+      return axios.get(address);
+    })
     .then((response) => {
       const $ = cheerio.load(response.data, { decodeEntities: false });
 
@@ -96,12 +99,15 @@ export default (address, dirpath) => {
       return fs.mkdir(path.join(dirpath, resourceDirectoryName));
     })
     .then(() => {
-      const loadingResourcesPromises = links.map(({ link, tag }) => {
+      const resourceTasks = new Listr([], { exitOnError: false, concurrent: true });
+
+      links.forEach(({ link, tag }) => {
         const resourceName = getContentName(link, 'resource');
         const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
         const { responseType } = tagsProperties[tag];
 
-        const resourceTask = new Listr([
+        logRequest(link);
+        resourceTasks.add(
           {
             title: url.resolve(address, link),
             task: () => axios({
@@ -113,13 +119,10 @@ export default (address, dirpath) => {
               return fs.writeFile(resourcePath, resourceResponse.data);
             }).catch(handleError),
           },
-        ], { exitOnError: false });
-
-        logRequest(link);
-        return resourceTask.run();
+        );
       });
 
-      return Promise.all(loadingResourcesPromises);
+      return resourceTasks.run();
     })
     .then(() => {
       logWrite(`resource ${address} to ${mainFilePath}`);
