@@ -64,73 +64,69 @@ const tagsProperties = {
 };
 
 
-export default (address, dirpath) => {
+export default async (address, dirpath) => {
   const resourceDirectoryName = getContentName(address, 'directory');
   const mainFileName = getContentName(address, 'main');
   const mainFilePath = path.join(dirpath, mainFileName);
 
-  const links = [];
-  let modifiedMainFile = '';
+  try {
+    await fs.access(dirpath);
 
-  return fs.access(dirpath)
-    .then(() => {
-      logRequest(address);
-      return axios.get(address);
-    })
-    .then((response) => {
-      const $ = cheerio.load(response.data, { decodeEntities: false });
+    logRequest(address);
+    const response = await axios.get(address);
 
-      const tags = keys(tagsProperties);
-      tags.forEach((tag) => {
-        const { attribute } = tagsProperties[tag];
-        $(tag).each((i, element) => {
-          const link = $(element).attr(attribute);
-          if (exists(link) && isLocal(link)) {
-            logExtract(link);
-            links.push({ link, tag });
-            const resourceName = getContentName(link, 'resource');
-            const resourcePath = path.join(resourceDirectoryName, resourceName);
-            $(element).attr(attribute, resourcePath);
-          }
-        });
+    const $ = cheerio.load(response.data, { decodeEntities: false });
+
+    const links = [];
+
+    const tags = keys(tagsProperties);
+    tags.forEach((tag) => {
+      const { attribute } = tagsProperties[tag];
+      $(tag).each((i, element) => {
+        const link = $(element).attr(attribute);
+        if (exists(link) && isLocal(link)) {
+          logExtract(link);
+          links.push({ link, tag });
+          const resourceName = getContentName(link, 'resource');
+          const resourcePath = path.join(resourceDirectoryName, resourceName);
+          $(element).attr(attribute, resourcePath);
+        }
       });
-
-      modifiedMainFile = $.html();
-      return fs.mkdir(path.join(dirpath, resourceDirectoryName));
-    })
-    .then(() => {
-      const resourceTasks = new Listr([], { exitOnError: false, concurrent: true });
-
-      links.forEach(({ link, tag }) => {
-        const resourceName = getContentName(link, 'resource');
-        const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
-        const { responseType } = tagsProperties[tag];
-
-        logRequest(link);
-        resourceTasks.add(
-          {
-            title: url.resolve(address, link),
-            task: () => axios({
-              method: 'get',
-              responseType: responseType(link),
-              url: url.resolve(address, link),
-            }).then((resourceResponse) => {
-              logWrite(`resource ${link} to ${resourcePath}`);
-              return fs.writeFile(resourcePath, resourceResponse.data);
-            }).catch(handleError),
-          },
-        );
-      });
-
-      return resourceTasks.run();
-    })
-    .then(() => {
-      logWrite(`resource ${address} to ${mainFilePath}`);
-      return fs.writeFile(mainFilePath, modifiedMainFile);
-    })
-    .then(() => mainFileName)
-    .catch((error) => {
-      const message = handleError(error);
-      throw new Error(message);
     });
+
+    const modifiedMainFile = $.html();
+
+    await fs.mkdir(path.join(dirpath, resourceDirectoryName));
+
+    const resourceTasks = new Listr([], { exitOnError: false, concurrent: true });
+
+    links.forEach(({ link, tag }) => {
+      const resourceName = getContentName(link, 'resource');
+      const resourcePath = path.join(dirpath, resourceDirectoryName, resourceName);
+      const { responseType } = tagsProperties[tag];
+
+      logRequest(link);
+      resourceTasks.add(
+        {
+          title: url.resolve(address, link),
+          task: () => axios({
+            method: 'get',
+            responseType: responseType(link),
+            url: url.resolve(address, link),
+          }).then((resourceResponse) => {
+            logWrite(`resource ${link} to ${resourcePath}`);
+            return fs.writeFile(resourcePath, resourceResponse.data);
+          }).catch(handleError),
+        },
+      );
+    });
+
+    await resourceTasks.run();
+
+    logWrite(`resource ${address} to ${mainFilePath}`);
+    return fs.writeFile(mainFilePath, modifiedMainFile);
+  } catch (error) {
+    const message = handleError(error);
+    throw new Error(message);
+  }
 };

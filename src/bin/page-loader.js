@@ -12,14 +12,15 @@ program
 
 program
   .arguments('<url>')
-  .action((url) => {
-    console.log('');
-    downloadPage(url, program.output)
-      .then(mainFileName => console.log(`\nPage was downloaded as '${mainFileName}'`))
-      .catch((error) => {
-        console.error(error.message);
-        process.exit(1);
-      });
+  .action(async (url) => {
+    try {
+      console.log('');
+      const mainFileName = await downloadPage(url, program.output);
+      console.log(`\nPage was downloaded as '${mainFileName}'`);
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
   });
 
 program.parse(process.argv);
