@@ -46,7 +46,7 @@
     "nock": "^10.0.6"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "cheerio": "^1.0.0-rc.2",
     "commander": "^2.19.0",
     "debug": "^4.1.1",
